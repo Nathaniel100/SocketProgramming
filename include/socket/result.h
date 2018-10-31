@@ -17,6 +17,7 @@ enum ErrorCode{
   ERROR_BIND,
   ERROR_LISTEN,
   ERROR_ACCEPT,
+  ERROR_SETSOCKOPT,
 };
 
 class Result {

@@ -101,6 +101,11 @@ Result CreateServerSocket(const char *address, int port,
     LOG_E("Socket create failed: %s", strerror(errno));
     return {ERROR_SOCKET, "socket create failed"};
   }
+  const int on = 1;
+  if (setsockopt(socket_tcp, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0) {
+    LOG_E("setsockopt SO_REUSEADDR failed: %s", strerror(errno));
+    return {ERROR_SETSOCKOPT, "setsockopt SO_REUSEADDR failed"};
+  }
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
   Result result = SetAddress(&addr, address, port);

@@ -14,6 +14,7 @@
 
 #define SERVER_ADDR "127.0.0.1"
 #define SERVER_PORT 11789
+#define BUFFER_SIZE 2048
 
 int main() {
   sock::Socket client_socket;
@@ -21,7 +22,7 @@ int main() {
     return -1;
   }
 
-  char buf[100] = {0};
+  char buf[BUFFER_SIZE] = {0};
   while (std::cin.getline(buf, sizeof(buf))) {
     if (!client_socket.Send(buf, strlen(buf), nullptr)) {
       return -1;

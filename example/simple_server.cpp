@@ -11,6 +11,7 @@
 #include "socket/log.h"
 
 #define SERVER_PORT 11789
+#define BUFFER_SIZE 2048
 
 int main() {
   sock::Socket server_socket;
@@ -24,7 +25,7 @@ int main() {
       return -1;
     }
 
-    char buf[100] = {0};
+    char buf[BUFFER_SIZE] = {0};
     while(1) {
       if (!client_socket.Recv(sizeof(buf), buf, nullptr)) {
         client_socket.Close();
