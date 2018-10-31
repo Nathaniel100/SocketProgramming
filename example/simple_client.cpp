@@ -24,11 +24,12 @@ int main() {
 
   char buf[BUFFER_SIZE] = {0};
   while (std::cin.getline(buf, sizeof(buf))) {
-    if (!client_socket.Send(buf, strlen(buf), nullptr)) {
+    size_t n = 0;
+    if (!client_socket.Send(buf, strlen(buf), &n)) {
       return -1;
     }
     memset(buf, 0, sizeof(buf));
-    if (!client_socket.Recv(sizeof(buf), buf, nullptr)) {
+    if (!client_socket.Recvn(n, buf, nullptr)) {
       return -1;
     }
     LOG_D("Read: %s", buf);

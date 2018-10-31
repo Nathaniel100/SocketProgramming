@@ -27,11 +27,12 @@ int main() {
 
     char buf[BUFFER_SIZE] = {0};
     while(1) {
-      if (!client_socket.Recv(sizeof(buf), buf, nullptr)) {
+      size_t nread = 0;
+      if (!client_socket.Recv(sizeof(buf), buf, &nread)) {
         client_socket.Close();
         break;
       }
-      if (!client_socket.Send(buf, strlen(buf), nullptr)) {
+      if (!client_socket.Send(buf, nread, nullptr)) {
         client_socket.Close();
         break;
       }

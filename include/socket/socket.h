@@ -14,7 +14,10 @@ namespace sock {
 class Socket {
  public:
   explicit Socket(int s = -1);
+  // 读取size个字符, 不一定可以读取到size个字符，通过nread返回实际读取的长度
   Result Recv(size_t size, void *buf, size_t *nread);
+  // 读取size个字符，不够时阻塞直到出错或断开连接
+  Result Recvn(size_t size, void *buf, size_t *nread);
   Result Send(const void *buf, size_t size, size_t *nwrite);
   Result Close();
   Result Accept(Socket *client_socket);

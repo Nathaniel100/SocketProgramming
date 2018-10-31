@@ -34,6 +34,32 @@ Result Socket::Recv(size_t size, void *buf, size_t *nread) {
   }
   return {};
 }
+Result Socket::Recvn(size_t size, void *buf, size_t *nread) {
+  uint8_t *p = reinterpret_cast<uint8_t *>(buf);
+  int left = static_cast<int>(size);
+  while(left > 0) {
+    int r = static_cast<int>(recv(socket_, p, size, 0));
+    if (r < 0) {
+      if (r == EINTR) {
+        continue;
+      }
+      LOG_E("recv failed: %s", strerror(errno));
+      return {ERROR_RECV, "recv failed"};
+    } else if (r == 0) {
+      if (nread) {
+        *nread = size - left;
+      }
+      LOG_E("peer disconnected");
+      return {ERROR_RECV_EOF, "eof"};
+    }
+    left -= r;
+    p += r;
+  }
+  if (nread) {
+    *nread = static_cast<size_t>(size);
+  }
+  return {};
+}
 Result Socket::Send(const void *buf, size_t size, size_t *nwrite) {
   int r = static_cast<int>(send(socket_, buf, size, 0));
   if (r <= 0) {
