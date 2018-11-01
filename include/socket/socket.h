@@ -22,6 +22,8 @@ class Socket {
   Result Close();
   Result Accept(Socket *client_socket);
 
+  int fd() const { return socket_; }
+
  private:
   int socket_;
 };

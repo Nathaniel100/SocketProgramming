@@ -7,3 +7,6 @@ add_executable(SimpleServer simple_server.cpp)
 target_link_libraries(SimpleServer libsocket)
 
 add_executable(SelectExample select_example.cpp)
+
+add_executable(SelectClient select_client.cpp)
+target_link_libraries(SelectClient libsocket)
