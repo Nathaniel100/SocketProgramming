@@ -10,3 +10,6 @@ add_executable(SelectExample select_example.cpp)
 
 add_executable(SelectClient select_client.cpp)
 target_link_libraries(SelectClient libsocket)
+
+add_executable(SelectServer select_server.cpp)
+target_link_libraries(SelectServer libsocket)
