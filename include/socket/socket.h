@@ -21,6 +21,8 @@ class Socket {
   Result Send(const void *buf, size_t size, size_t *nwrite);
   Result Close();
   Result Accept(Socket *client_socket);
+  Result ConnectTimeoutBySigalarm(struct sockaddr *addr,
+                                  int nsec);
 
   int fd() const { return socket_; }
 
@@ -28,6 +30,8 @@ class Socket {
   int socket_;
 };
 
+using SigFunc = void (*)(int);
+SigFunc Signal(int signo, SigFunc func);
 Result SetAddress(struct sockaddr_in *addr, const char *host, int port);
 Result CreateClientSocket(const char *server_address, int server_port,
                           Socket *client_socket);

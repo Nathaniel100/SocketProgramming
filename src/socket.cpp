@@ -3,6 +3,7 @@
 //
 
 #include <arpa/inet.h>
+#include <signal.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -37,7 +38,7 @@ Result Socket::Recv(size_t size, void *buf, size_t *nread) {
 Result Socket::Recvn(size_t size, void *buf, size_t *nread) {
   uint8_t *p = reinterpret_cast<uint8_t *>(buf);
   int left = static_cast<int>(size);
-  while(left > 0) {
+  while (left > 0) {
     int r = static_cast<int>(recv(socket_, p, size, 0));
     if (r < 0) {
       if (r == EINTR) {
@@ -85,6 +86,45 @@ Result Socket::Accept(Socket *client_socket) {
     *client_socket = Socket(socket_tcp);
   }
   return {};
+}
+
+static void ConnectAlarm(int) { return; /* Just interrupt connect */ }
+
+Result Socket::ConnectTimeoutBySigalarm(struct sockaddr *addr, int nsec) {
+  Result result;
+  SigFunc old_sigalarm_func = Signal(SIGALRM, ConnectAlarm);
+  alarm(nsec);
+  if (connect(socket_, addr, sizeof(*addr)) < 0) {
+    if (errno == EINTR) {
+      errno = ETIMEDOUT;
+    }
+    LOG_E("connect failed: %s", strerror(errno));
+    result = {ERROR_CONNECT, "connect failed"};
+  }
+  alarm(0);
+  Signal(SIGALRM, old_sigalarm_func);
+
+  return result;
+}
+
+SigFunc Signal(int signo, SigFunc func) {
+  struct sigaction act, oact;
+  act.sa_handler = func;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = 0;
+  if (signo == SIGALRM) {
+#ifdef SA_INTERRUPT
+    act.sa_flags |= SA_INTERRUPT;
+#endif
+  } else {
+#ifdef SA_RESTART
+    act.sa_flags |= SA_RESTART;
+#endif
+  }
+  if (::sigaction(signo, &act, &oact) < 0) {
+    return SIG_ERR;
+  }
+  return oact.sa_handler;
 }
 
 Result SetAddress(struct sockaddr_in *addr, const char *host, int port) {
