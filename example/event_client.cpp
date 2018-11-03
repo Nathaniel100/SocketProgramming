@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <socket/socket.h>
-
 void Usage() { printf("EventClient SERVER_IP SERVER_PORT\n"); }
 
 static void OnRead(struct bufferevent *bev, void *arg) {
@@ -42,7 +40,6 @@ int main(int argc, char **argv) {
   struct bufferevent *bev;
   const char *server_address;
   int port = 0;
-  struct sockaddr_in addr;
 
   if (argc != 3) {
     Usage();
@@ -50,19 +47,14 @@ int main(int argc, char **argv) {
   }
   server_address = argv[1];
   port = strtol(argv[2], nullptr, 0);
-  if (!sock::SetAddress(&addr, server_address, port)) {
-    Usage();
-    return -1;
-  }
 
   base = event_base_new();
-
   bev = bufferevent_socket_new(base, -1, BEV_OPT_CLOSE_ON_FREE);
   bufferevent_setcb(bev, OnRead, OnWrite, OnEvent, base);
   bufferevent_enable(bev, EV_READ);
   bufferevent_enable(bev, EV_WRITE);
-  if (bufferevent_socket_connect(bev, (struct sockaddr *)&addr, sizeof(addr)) !=
-      0) {
+  if (bufferevent_socket_connect_hostname(bev, nullptr, AF_INET, server_address,
+                                          port) != 0) {
     fprintf(stderr, "connect failed\n");
     goto err;
   }
