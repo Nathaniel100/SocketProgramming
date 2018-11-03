@@ -21,16 +21,15 @@ static void OnRead(struct bufferevent *bev, void *arg) {
 }
 
 static void OnWrite(struct bufferevent *bev, void *arg) {
-  printf("write success\n");
 }
 
 static void OnEvent(struct bufferevent *bev, short what, void *arg) {
-  if (what == BEV_EVENT_CONNECTED) {
+  if (what & BEV_EVENT_CONNECTED) {
     printf("connect success\n");
     bufferevent_write(bev, "Hello", 5);
-  } else if (what == BEV_EVENT_EOF) {
+  } else if (what & BEV_EVENT_EOF) {
     printf("Peer disconnected\n");
-  } else if (what == BEV_EVENT_ERROR) {
+  } else if (what & BEV_EVENT_ERROR) {
     printf("Connection error\n");
   }
 }
